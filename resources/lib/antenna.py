@@ -15,15 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-
 import json, re
 from tulip import bookmarks, directory, client, cache, workers
 
 
 class indexer:
-
     def __init__(self):
         self.list = [] ; self.data = []
+        self.base_link = 'https://www.antenna.gr'
         self.tvshows_link = 'http://mservices.antenna.gr/services/mobile/getshowbymenucategory.ashx?menu='
         self.episodes_link = 'http://mservices.antenna.gr/services/mobile/getepisodesforshow.ashx?show='
         self.archive_link = 'http://mservices.antenna.gr/services/mobile/getshowsbygenre.ashx?islive=0&genre=a0f33045-dfda-459a-8e4f-a65b015a0bc2'
@@ -32,59 +31,60 @@ class indexer:
         self.news_link = 'http://mservices.antenna.gr/services/mobile/getepisodesforshow.ashx?show=eaa3d856-9d11-4c3f-a048-a617011cee3d'
         self.weather_link = 'http://mservices.antenna.gr/services/mobile/getepisodesforshow.ashx?show=ffff8dbf-8600-4f4a-9eb8-a617012eebab'
         self.getlive_link = 'http://mservices.antenna.gr/services/mobile/getLiveStream.ashx?'
-        self.live_link = 'http://antglantennatv-lh.akamaihd.net/i/live_1@421307/master.m3u8'
+        self.direct_live_link = 'http://antglantennatv-lh.akamaihd.net/i/live_1@421307/master.m3u8'
+        self.live_link = self.base_link + '/Live'
 
     def root(self):
 
         self.list = [
-        {
-        'title': 32001,
-        'action': 'live',
-        'isFolder': 'False',
-        'icon': 'live.png'
-        },
-
-        {
-        'title': 32002,
-        'action': 'tvshows',
-        'icon': 'tvshows.png'
-        },
-
-        {
-        'title': 32003,
-        'action': 'archive',
-        'icon': 'archive.png'
-        },
-
-        {
-        'title': 32004,
-        'action': 'popular',
-        'icon': 'popular.png'
-        },
-
-        {
-        'title': 32005,
-        'action': 'recommended',
-        'icon': 'recommended.png'
-        },
-
-        {
-        'title': 32006,
-        'action': 'news',
-        'icon': 'news.png'
-        },
-
-        {
-        'title': 32007,
-        'action': 'weather',
-        'icon': 'weather.png'
-        },
-
-        {
-        'title': 32008,
-        'action': 'bookmarks',
-        'icon': 'bookmarks.png'
-        }
+            {
+                'title': 32001,
+                'action': 'live',
+                'isFolder': 'False',
+                'icon': 'live.png'
+            }
+            ,
+            {
+                'title': 32002,
+                'action': 'tvshows',
+                'icon': 'tvshows.png'
+            }
+            ,
+            {
+                'title': 32003,
+                'action': 'archive',
+                'icon': 'archive.png'
+            }
+            ,
+            {
+                'title': 32004,
+                'action': 'popular',
+                'icon': 'popular.png'
+            }
+            ,
+            {
+                'title': 32005,
+                'action': 'recommended',
+                'icon': 'recommended.png'
+            }
+            ,
+            {
+                'title': 32006,
+                'action': 'news',
+                'icon': 'news.png'
+            }
+            ,
+            {
+                'title': 32007,
+                'action': 'weather',
+                'icon': 'weather.png'
+            }
+            ,
+            {
+                'title': 32008,
+                'action': 'bookmarks',
+                'icon': 'bookmarks.png'
+            }
         ]
 
         directory.add(self.list, content='videos')
@@ -93,10 +93,11 @@ class indexer:
 
         self.list = bookmarks.get()
 
-        if self.list == None: return
+        if self.list is None:
+            return
 
         for i in self.list:
-            bookmark = dict((k,v) for k, v in i.iteritems() if not k == 'next')
+            bookmark = dict((k, v) for k, v in i.iteritems() if not k == 'next')
             bookmark['delbookmark'] = i['url']
             i.update({'cm': [{'title': 32502, 'query': {'action': 'deleteBookmark', 'url': json.dumps(bookmark)}}]})
 
@@ -106,14 +107,16 @@ class indexer:
         directory.add(self.list, content='videos')
 
     def tvshows(self):
+
         self.list = cache.get(self.item_list_1, 24, self.tvshows_link)
 
-        if self.list == None: return
+        if self.list is None:
+            return
 
         for i in self.list: i.update({'action': 'episodes'})
 
         for i in self.list:
-            bookmark = dict((k,v) for k, v in i.iteritems() if not k == 'next')
+            bookmark = dict((k, v) for k, v in i.iteritems() if not k == 'next')
             bookmark['bookmark'] = i['url']
             i.update({'cm': [{'title': 32501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
 
@@ -122,14 +125,16 @@ class indexer:
         directory.add(self.list, content='videos')
 
     def archive(self):
+
         self.list = cache.get(self.item_list_1, 24, self.archive_link)
 
-        if self.list == None: return
+        if self.list is None:
+            return
 
         for i in self.list: i.update({'action': 'reverseEpisodes'})
 
         for i in self.list:
-            bookmark = dict((k,v) for k, v in i.iteritems() if not k == 'next')
+            bookmark = dict((k, v) for k, v in i.iteritems() if not k == 'next')
             bookmark['bookmark'] = i['url']
             i.update({'cm': [{'title': 32501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
 
@@ -140,11 +145,12 @@ class indexer:
     def episodes(self, url, reverse=False):
         self.list = cache.get(self.item_list_1, 1, url)
 
-        if self.list == None: return
+        if self.list is None:
+            return
 
         for i in self.list: i.update({'action': 'play', 'isFolder': 'False'})
 
-        if reverse == True:
+        if reverse is True:
             self.list = self.list[::-1]
 
         directory.add(self.list, content='videos')
@@ -152,22 +158,17 @@ class indexer:
     def popular(self):
         self.episodes(self.popular_link)
 
-
     def recommended(self):
         self.episodes(self.recommended_link)
-
 
     def news(self):
         self.episodes(self.news_link)
 
-
     def weather(self):
         self.episodes(self.weather_link)
 
-
     def play(self, url):
-        directory.resolve(url)
-
+        directory.resolve(self.resolve(url))
 
     def live(self):
         directory.resolve(self.resolve_live(), meta={'title': 'ANT1'})
@@ -185,19 +186,21 @@ class indexer:
 
             if 'total_pages' in result:
                 pages = int(result['total_pages'])
-                pages = range(2, pages+1)[:16]
+                pages = range(2, pages + 1)[:16]
 
                 threads = []
                 for i in pages:
-                    threads.append(workers.Thread(self.thread, url + '&page=%s' % str(i), i-2))
+                    threads.append(workers.Thread(self.thread, url + '&page=%s' % str(i), i - 2))
                     self.data.append('')
                 [i.start() for i in threads]
                 [i.join() for i in threads]
 
                 for i in self.data:
                     result = re.findall('\((.+?)\);$', i)
-                    try: items += json.loads(result[0])['data']
-                    except: pass
+                    try:
+                        items += json.loads(result[0])['data']
+                    except:
+                        pass
         except:
             return
 
@@ -223,11 +226,11 @@ class indexer:
                 elif 'Image' in item:
                     image = item['Image'].strip()
                 if 'MediaFileRef' in item:
-                    image = re.sub('w=\d*','w=600', image)
-                    image = re.sub('h=\d*','h=400', image)
+                    image = re.sub('w=\d*', 'w=600', image)
+                    image = re.sub('h=\d*', 'h=400', image)
                 else:
-                    image = re.sub('w=\d*','w=500', image)
-                    image = re.sub('h=\d*','h=500', image)
+                    image = re.sub('w=\d*', 'w=500', image)
+                    image = re.sub('h=\d*', 'h=500', image)
                 image = client.replaceHTMLCodes(image)
                 image = image.encode('utf-8')
 
@@ -237,18 +240,49 @@ class indexer:
 
         return self.list
 
-
     def resolve_live(self):
+
         url = client.request(self.getlive_link)
-        if url == None: url = ''
+        if url is None:
+            url = ''
         url = re.findall('(?:\"|\')(http(?:s|)://.+?)(?:\"|\')', url)
         url = [i for i in url if '.m3u8' in i]
 
         try:
-            return url[-1]
+            try:
+                if url:
+                    return url[-1]
+                else:
+                    raise Exception
+            except:
+                html = client.request(self.live_link)
+
+                param = re.findall('\$.getJSON\(\'(.+?)\?', html)[0]
+                get_json = self.base_link + param
+                cookie = client.request(get_json, output='cookie', close=False, referer=url)
+                result = client.request(get_json, cookie=cookie, referer=url)
+                link = json.loads(result)['url']
+
+                return link
         except:
             return self.live_link
 
+    def resolve(self, url):
+
+        if url.endswith('m3u8'):
+            return url
+        else:
+            try:
+                html = client.request(url)
+                param = re.findall('\$.getJSON\(\'(.+?)\', \{ (.+?) \}', html)[0]
+                get_json = self.base_link + param[0] + '?' + param[1].replace(': ', '=').replace('\'', '')
+
+                result = client.request(get_json)
+                link = json.loads(result)['url']
+
+                return link
+            except:
+                pass
 
     def thread(self, url, i):
 
