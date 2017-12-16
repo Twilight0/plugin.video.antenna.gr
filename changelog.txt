@@ -1,3 +1,6 @@
+[B]1.2.1[/B]
+- Minor correction in live resolver
+
 [B]1.2.0[/B]
 - Enhanced live stream resolver
 - Added resolver for VOD content when called from other addons

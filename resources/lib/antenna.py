@@ -265,7 +265,7 @@ class indexer:
 
                 return link
         except:
-            return self.live_link
+            return self.direct_live_link
 
     def resolve(self, url):
 
