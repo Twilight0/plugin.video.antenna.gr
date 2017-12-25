@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="30009">
+        <setting id="page_resolver" type="bool" label="32010" default="false"/>
+        <setting label="32011" type="action" action="RunPlugin(plugin://$ID/?action=cache_clear)"/>
+    </category>
+</settings>

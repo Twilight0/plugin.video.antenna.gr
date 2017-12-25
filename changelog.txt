@@ -1,3 +1,9 @@
+[B]1.2.2[/B]
+- Strengthened live resolver with direct urls as fallback
+- Option available to utilize web page resolver for live stream
+- Clear function cache action
+- Various cosmetics
+
 [B]1.2.1[/B]
 - Minor correction in live resolver
 

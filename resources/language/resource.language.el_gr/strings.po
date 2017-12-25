@@ -7,6 +7,9 @@
 msgid ""
 msgstr ""
 
+msgctxt "#30402"
+msgid "Success"
+msgstr "Επιτυχία"
 
 msgctxt "#32001"
 msgid "Live"
@@ -39,6 +42,18 @@ msgstr "Καιρός"
 msgctxt "#32008"
 msgid "Bookmarks"
 msgstr "Σελιδοδείκτες"
+
+msgctxt "#32009"
+msgid "General"
+msgstr "Γενικά"
+
+msgctxt "#32010"
+msgid "Use web page resolver for live stream"
+msgstr "Κάνε χρήση επιλυτή ιστοσελίδας για την ζωντανή ροή"
+
+msgctxt "#32011"
+msgid "Clear Function cache"
+msgstr "Καθαρισμός μνήμης λειτουργιών"
 
 msgctxt "#32500"
 msgid "Next..."

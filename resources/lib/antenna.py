@@ -16,72 +16,75 @@
 '''
 
 import json, re
-from tulip import bookmarks, directory, client, cache, workers
+from tulip import bookmarks, directory, client, cache, workers, control
 
 
 class indexer:
+
     def __init__(self):
+
         self.list = [] ; self.data = []
-        self.base_link = 'https://www.antenna.gr'
-        self.tvshows_link = 'http://mservices.antenna.gr/services/mobile/getshowbymenucategory.ashx?menu='
-        self.episodes_link = 'http://mservices.antenna.gr/services/mobile/getepisodesforshow.ashx?show='
-        self.archive_link = 'http://mservices.antenna.gr/services/mobile/getshowsbygenre.ashx?islive=0&genre=a0f33045-dfda-459a-8e4f-a65b015a0bc2'
-        self.popular_link = 'http://mservices.antenna.gr/services/mobile/getlatestepisodes.ashx?'
-        self.recommended_link = 'http://mservices.antenna.gr/services/mobile/getrecommended.ashx?'
-        self.news_link = 'http://mservices.antenna.gr/services/mobile/getepisodesforshow.ashx?show=eaa3d856-9d11-4c3f-a048-a617011cee3d'
-        self.weather_link = 'http://mservices.antenna.gr/services/mobile/getepisodesforshow.ashx?show=ffff8dbf-8600-4f4a-9eb8-a617012eebab'
-        self.getlive_link = 'http://mservices.antenna.gr/services/mobile/getLiveStream.ashx?'
-        self.direct_live_link = 'http://antglantennatv-lh.akamaihd.net/i/live_1@421307/master.m3u8'
-        self.live_link = self.base_link + '/Live'
+        self.base_link = 'http://www.antenna.gr'
+        self.tvshows_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getshowbymenucategory.ashx?menu='
+        self.episodes_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show='
+        self.archive_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getshowsbygenre.ashx?islive=0&genre=a0f33045-dfda-459a-8e4f-a65b015a0bc2'
+        self.popular_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getlatestepisodes.ashx?'
+        self.recommended_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getrecommended.ashx?'
+        self.news_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show=eaa3d856-9d11-4c3f-a048-a617011cee3d'
+        self.weather_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show=ffff8dbf-8600-4f4a-9eb8-a617012eebab'
+        self.get_live = self.base_link.replace('www', 'mservices') + '/services/mobile/getLiveStream.ashx?'
+        self.live_link_1 = 'http://antglantennatv-lh.akamaihd.net/i/live_1@421307/master.m3u8'
+        self.live_link_2 = 'http://antglantennatv-lh.akamaihd.net/i/live_2@421307/master.m3u8'
+        self.live_page = self.base_link + '/Live'
 
     def root(self):
 
         self.list = [
             {
-                'title': 32001,
+                'title': control.lang(32001),
                 'action': 'live',
                 'isFolder': 'False',
                 'icon': 'live.png'
             }
             ,
             {
-                'title': 32002,
+                'title': control.lang(32002),
                 'action': 'tvshows',
                 'icon': 'tvshows.png'
             }
             ,
             {
-                'title': 32003,
+                'title': control.lang(32003),
                 'action': 'archive',
                 'icon': 'archive.png'
             }
             ,
             {
-                'title': 32004,
+                'title': control.lang(32004),
                 'action': 'popular',
                 'icon': 'popular.png'
             }
             ,
             {
-                'title': 32005,
+                'title': control.lang(32005),
                 'action': 'recommended',
                 'icon': 'recommended.png'
             }
             ,
             {
-                'title': 32006,
+                'title': control.lang(32006),
                 'action': 'news',
                 'icon': 'news.png'
             }
             ,
             {
-                'title': 32007,
+                'title': control.lang(32007),
                 'action': 'weather',
                 'icon': 'weather.png'
             }
             ,
             {
-                'title': 32008,
+                'title': control.lang(32008),
                 'action': 'bookmarks',
                 'icon': 'bookmarks.png'
             }
@@ -108,7 +111,7 @@ class indexer:
 
     def tvshows(self):
 
-        self.list = cache.get(self.item_list_1, 24, self.tvshows_link)
+        self.list = cache.get(self.items_list, 24, self.tvshows_link)
 
         if self.list is None:
             return
@@ -126,7 +129,7 @@ class indexer:
 
     def archive(self):
 
-        self.list = cache.get(self.item_list_1, 24, self.archive_link)
+        self.list = cache.get(self.items_list, 24, self.archive_link)
 
         if self.list is None:
             return
@@ -143,7 +146,7 @@ class indexer:
         directory.add(self.list, content='videos')
 
     def episodes(self, url, reverse=False):
-        self.list = cache.get(self.item_list_1, 1, url)
+        self.list = cache.get(self.items_list, 1, url)
 
         if self.list is None:
             return
@@ -173,7 +176,7 @@ class indexer:
     def live(self):
         directory.resolve(self.resolve_live(), meta={'title': 'ANT1'})
 
-    def item_list_1(self, url):
+    def items_list(self, url):
 
         try:
             page = url + '&page=1'
@@ -242,30 +245,37 @@ class indexer:
 
     def resolve_live(self):
 
-        url = client.request(self.getlive_link)
-        if url is None:
-            url = ''
-        url = re.findall('(?:\"|\')(http(?:s|)://.+?)(?:\"|\')', url)
-        url = [i for i in url if '.m3u8' in i]
+        if control.setting('page_resolver') == 'true' and 'Greece' in self.geo_loc():
 
-        try:
+            html = client.request(self.live_page)
+
+            param = re.findall('\$.getJSON\(\'(.+?)\?', html)[0]
+            get_json = self.base_link + param
+            cookie = client.request(get_json, output='cookie', close=False, referer=self.live_page)
+            result = client.request(get_json, cookie=cookie, referer=self.live_page)
+            url = json.loads(result)['url']
+
+            return url
+
+        else:
+
             try:
-                if url:
-                    return url[-1]
+
+                json_obj = client.request(self.get_live)
+
+                url = json.loads(json_obj.strip('();'))['data']['stream']
+
+                if url.endswith('.mp4'):
+                    raise StandardError
                 else:
-                    raise Exception
-            except:
-                html = client.request(self.live_link)
+                    return url
 
-                param = re.findall('\$.getJSON\(\'(.+?)\?', html)[0]
-                get_json = self.base_link + param
-                cookie = client.request(get_json, output='cookie', close=False, referer=url)
-                result = client.request(get_json, cookie=cookie, referer=url)
-                link = json.loads(result)['url']
+            except (KeyError, ValueError, StandardError, TypeError):
 
-                return link
-        except:
-            return self.direct_live_link
+                if client.request(self.live_link_1, output='response')[0] == '200':
+                    return self.live_link_1
+                else:
+                    return self.live_link_2
 
     def resolve(self, url):
 
@@ -291,3 +301,10 @@ class indexer:
             self.data[i] = result
         except:
             return
+
+    @staticmethod
+    def geo_loc():
+
+        json_obj = client.request('http://freegeoip.net/json/')
+
+        return json_obj

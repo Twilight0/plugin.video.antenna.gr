@@ -15,32 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-
-import urlparse,sys
-
-from resources.lib import antenna
+from resources.lib import antenna, action, url
 
 
-params = dict(urlparse.parse_qsl(sys.argv[2].replace('?','')))
-
-action = params.get('action')
-
-url = params.get('url')
-
-
-if action == None:
+if action is None:
     antenna.indexer().root()
-
-elif action == 'addBookmark':
-    from tulip import bookmarks
-    bookmarks.add(url)
-
-elif action == 'deleteBookmark':
-    from tulip import bookmarks
-    bookmarks.delete(url)
-
-elif action == 'bookmarks':
-    antenna.indexer().bookmarks()
 
 elif action == 'tvshows':
     antenna.indexer().tvshows()
@@ -71,3 +50,18 @@ elif action == 'live':
 
 elif action == 'play':
     antenna.indexer().play(url)
+
+elif action == 'addBookmark':
+    from tulip import bookmarks
+    bookmarks.add(url)
+
+elif action == 'deleteBookmark':
+    from tulip import bookmarks
+    bookmarks.delete(url)
+
+elif action == 'bookmarks':
+    antenna.indexer().bookmarks()
+
+elif action == 'cache_clear':
+    from tulip import cache
+    cache.clear(withyes=False)

@@ -7,6 +7,9 @@
 msgid ""
 msgstr ""
 
+msgctxt "#30402"
+msgid "Success"
+msgstr ""
 
 msgctxt "#32001"
 msgid "Live"
@@ -38,6 +41,18 @@ msgstr ""
 
 msgctxt "#32008"
 msgid "Bookmarks"
+msgstr ""
+
+msgctxt "#32009"
+msgid "General"
+msgstr ""
+
+msgctxt "#32010"
+msgid "Use web page resolver for live stream"
+msgstr ""
+
+msgctxt "#32011"
+msgid "Clear Function cache"
 msgstr ""
 
 msgctxt "#32500"

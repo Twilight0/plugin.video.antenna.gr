@@ -15,3 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import urlparse, sys
+
+params = dict(urlparse.parse_qsl(sys.argv[2].replace('?','')))
+
+action = params.get('action')
+url = params.get('url')
