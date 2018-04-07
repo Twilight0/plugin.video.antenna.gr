@@ -1,3 +1,6 @@
+[B]1.2.3[/B]
+- Added new fallback urls for live
+
 [B]1.2.2[/B]
 - Strengthened live resolver with direct urls as fallback
 - Option available to utilize web page resolver for live stream

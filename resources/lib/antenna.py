@@ -33,8 +33,8 @@ class indexer:
         self.news_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show=eaa3d856-9d11-4c3f-a048-a617011cee3d'
         self.weather_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show=ffff8dbf-8600-4f4a-9eb8-a617012eebab'
         self.get_live = self.base_link.replace('www', 'mservices') + '/services/mobile/getLiveStream.ashx?'
-        self.live_link_1 = 'http://antglantennatv-lh.akamaihd.net/i/live_1@421307/master.m3u8'
-        self.live_link_2 = 'http://antglantennatv-lh.akamaihd.net/i/live_2@421307/master.m3u8'
+        self.live_link_1 = 'https://glmxantennatvsec-lh.akamaihd.net/i/live_1@536771/master.m3u8'
+        self.live_link_2 = 'https://glmxantennatvsec-lh.akamaihd.net/i/live_2@536771/master.m3u8'
         self.live_page = self.base_link + '/Live'
 
     def root(self):
