@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.antenna.gr" version="1.2.3" name="ANT1 Player" provider-name="Twilight0">
+<addon id="plugin.video.antenna.gr" version="1.2.4" name="ANT1 Player" provider-name="Twilight0">
 	<requires>
 		<import addon="xbmc.python" version="2.24.0" />
 		<import addon="script.module.tulip" version="1.4.0" />
@@ -20,8 +20,8 @@
 		<website>http://www.antenna.gr/</website>
         <size>692701</size>
 		<news>
-[B]1.2.3[/B]
-- Added new fallback urls for live
+[B]1.2.4[/B]
+- Fixed parsing of TV Shows, Latest, Archive and Recommended episodes
 		</news>
 		<assets>
 			<icon>icon.png</icon>
