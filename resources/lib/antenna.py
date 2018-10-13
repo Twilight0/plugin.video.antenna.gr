@@ -29,14 +29,13 @@ class indexer:
         self.list = [] ; self.data = []
         self.base_link = 'https://www.antenna.gr'
         self.tvshows_link = self.base_link + '/shows'
-        self.episodes_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show='
-        self.archive_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getshowsbygenre.ashx?islive=0&genre=a0f33045-dfda-459a-8e4f-a65b015a0bc2'
+        self.episodes_link = self.base_link + '/templates/data/player?cid='
+        self.archive_link = self.base_link + '/directory'
         self.popular_link = self.base_link + '/templates/data/popular'
-        self.recommended_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getrecommended.ashx?'
+        self.recommended_link = self.base_link + '/templates/data/HomeRecommended'
         self.news_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show=eaa3d856-9d11-4c3f-a048-a617011cee3d'
         self.weather_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show=ffff8dbf-8600-4f4a-9eb8-a617012eebab'
         self.get_live = self.base_link.replace('www', 'mservices') + '/services/mobile/getLiveStream.ashx?'
-        self.episode_url = 'https://www.antenna.gr/templates/data/player?cid='
         self.more_videos = self.base_link + '/templates/data/morevideos?aid='
         self.live_link_1 = 'https://glmxantennatvsec-lh.akamaihd.net/i/live_1@536771/master.m3u8'
         self.live_link_2 = 'https://glmxantennatvsec-lh.akamaihd.net/i/live_2@536771/master.m3u8'
@@ -215,7 +214,7 @@ class indexer:
 
                 if re.match(r'/.+/(\d+)/.+', link) is not None:
                     episodeId = re.search(r'/.+/(\d+)/.+', link).group(1)
-                    episodeJSON = client.request(self.episode_url + episodeId)
+                    episodeJSON = client.request(self.episodes_link + episodeId)
                     episodeJSON = json.loads(episodeJSON)
                     url = episodeJSON['url']
                     url = client.replaceHTMLCodes(url)
