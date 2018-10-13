@@ -17,6 +17,9 @@
 
 import json, re
 from tulip import bookmarks, directory, client, cache, workers, control
+import CommonFunctions
+common = CommonFunctions
+common.plugin = "ANT1 Player-1.2.3"
 
 
 class indexer:
@@ -24,15 +27,16 @@ class indexer:
     def __init__(self):
 
         self.list = [] ; self.data = []
-        self.base_link = 'http://www.antenna.gr'
-        self.tvshows_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getshowbymenucategory.ashx?menu='
+        self.base_link = 'https://www.antenna.gr'
+        self.tvshows_link = self.base_link + '/shows'
         self.episodes_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show='
         self.archive_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getshowsbygenre.ashx?islive=0&genre=a0f33045-dfda-459a-8e4f-a65b015a0bc2'
-        self.popular_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getlatestepisodes.ashx?'
+        self.popular_link = self.base_link + '/templates/data/popular'
         self.recommended_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getrecommended.ashx?'
         self.news_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show=eaa3d856-9d11-4c3f-a048-a617011cee3d'
         self.weather_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show=ffff8dbf-8600-4f4a-9eb8-a617012eebab'
         self.get_live = self.base_link.replace('www', 'mservices') + '/services/mobile/getLiveStream.ashx?'
+        self.episode_url = 'https://www.antenna.gr/templates/data/player?cid='
         self.live_link_1 = 'https://glmxantennatvsec-lh.akamaihd.net/i/live_1@536771/master.m3u8'
         self.live_link_2 = 'https://glmxantennatvsec-lh.akamaihd.net/i/live_2@536771/master.m3u8'
         self.live_page = self.base_link + '/Live'
@@ -120,7 +124,7 @@ class indexer:
 
         for i in self.list:
             bookmark = dict((k, v) for k, v in i.iteritems() if not k == 'next')
-            bookmark['bookmark'] = i['url']
+            bookmark['bookmark'] = i['url'] + '/videos'
             i.update({'cm': [{'title': 32501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
 
         self.list = sorted(self.list, key=lambda k: k['title'].lower())
@@ -179,61 +183,32 @@ class indexer:
     def items_list(self, url):
 
         try:
-            page = url + '&page=1'
+            page = url
 
-            result = client.request(page, mobile=True)
-            result = re.findall('\((.+?)\);$', result)[0]
-            result = json.loads(result)
-
-            items = result['data']
-
-            if 'total_pages' in result:
-                pages = int(result['total_pages'])
-                pages = range(2, pages + 1)[:16]
-
-                threads = []
-                for i in pages:
-                    threads.append(workers.Thread(self.thread, url + '&page=%s' % str(i), i - 2))
-                    self.data.append('')
-                [i.start() for i in threads]
-                [i.join() for i in threads]
-
-                for i in self.data:
-                    result = re.findall('\((.+?)\);$', i)
-                    try:
-                        items += json.loads(result[0])['data']
-                    except:
-                        pass
+            result = client.request(page)
+            items = common.parseDOM(result, "article")
         except:
             return
 
         for item in items:
             try:
-                if 'OwnerTitle' in item:
-                    title = item['OwnerTitle'].strip()
-                elif 'Title' in item:
-                    title = item['Title'].strip()
+                title = common.parseDOM(item, "h2")[0]
                 title = client.replaceHTMLCodes(title)
                 title = title.encode('utf-8')
 
-                if 'MediaFileRef' in item:
-                    url = item['MediaFileRef'].strip()
-                elif 'ShowId' in item:
-                    url = item['ShowId'].strip()
-                    url = self.episodes_link + url
-                url = client.replaceHTMLCodes(url)
-                url = url.encode('utf-8')
+                link = common.parseDOM(item, "a", ret = "href")[0]
 
-                if 'CoverImage' in item:
-                    image = item['CoverImage'].strip()
-                elif 'Image' in item:
-                    image = item['Image'].strip()
-                if 'MediaFileRef' in item:
-                    image = re.sub('w=\d*', 'w=600', image)
-                    image = re.sub('h=\d*', 'h=400', image)
+                if re.match(r'/.+/(\d+)/.+', link) is not None:
+                    episodeId = re.search(r'/.+/(\d+)/.+', link).group(1)
+                    episodeJSON = client.request(self.episode_url + episodeId)
+                    episodeJSON = json.loads(episodeJSON)
+                    url = episodeJSON['url']
+                    url = client.replaceHTMLCodes(url)
+                    url = url.encode('utf-8')
                 else:
-                    image = re.sub('w=\d*', 'w=500', image)
-                    image = re.sub('h=\d*', 'h=500', image)
+                    url = self.base_link + link
+
+                image = common.parseDOM(item, "img", ret = "src")[0]
                 image = client.replaceHTMLCodes(image)
                 image = image.encode('utf-8')
 
@@ -279,7 +254,7 @@ class indexer:
 
     def resolve(self, url):
 
-        if url.endswith('m3u8'):
+        if 'm3u8' in url:
             return url
         else:
             try:
