@@ -37,6 +37,7 @@ class indexer:
         self.weather_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show=ffff8dbf-8600-4f4a-9eb8-a617012eebab'
         self.get_live = self.base_link.replace('www', 'mservices') + '/services/mobile/getLiveStream.ashx?'
         self.episode_url = 'https://www.antenna.gr/templates/data/player?cid='
+        self.more_videos = self.base_link + '/templates/data/morevideos?aid='
         self.live_link_1 = 'https://glmxantennatvsec-lh.akamaihd.net/i/live_1@536771/master.m3u8'
         self.live_link_2 = 'https://glmxantennatvsec-lh.akamaihd.net/i/live_2@536771/master.m3u8'
         self.live_page = self.base_link + '/Live'
@@ -124,7 +125,7 @@ class indexer:
 
         for i in self.list:
             bookmark = dict((k, v) for k, v in i.iteritems() if not k == 'next')
-            bookmark['bookmark'] = i['url'] + '/videos'
+            bookmark['bookmark'] = i['url']
             i.update({'cm': [{'title': 32501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
 
         self.list = sorted(self.list, key=lambda k: k['title'].lower())
@@ -181,14 +182,28 @@ class indexer:
         directory.resolve(self.resolve_live(), meta={'title': 'ANT1'})
 
     def items_list(self, url):
+        page = url
+
+        result = client.request(page)
 
         try:
-            page = url
+            if "contentContainer_totalpages" in result:
+                totalPages = int(re.search(r'contentContainer_totalpages = (\d+);', result).group(1))
+                seriesId =  re.search(r'\/templates\/data\/morevideos\?aid=(\d+)', result).group(1)
+                items = []
+                threads = []
+                for i in range(1, totalPages+1):
+                    threads.append(workers.Thread(self.thread, self.more_videos + seriesId + "&p=" + str(i), i - 1))
+                    self.data.append('')
+                [i.start() for i in threads]
+                [i.join() for i in threads]
 
-            result = client.request(page)
-            items = common.parseDOM(result, "article")
+                for i in self.data:
+                    items.extend(common.parseDOM(i, "article"))
+            else:
+                items = common.parseDOM(result, "article")
         except:
-            return
+            pass
 
         for item in items:
             try:
@@ -206,7 +221,7 @@ class indexer:
                     url = client.replaceHTMLCodes(url)
                     url = url.encode('utf-8')
                 else:
-                    url = self.base_link + link
+                    url = self.base_link + link + '/videos'
 
                 image = common.parseDOM(item, "img", ret = "src")[0]
                 image = client.replaceHTMLCodes(image)
