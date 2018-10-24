@@ -1,38 +1,39 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.antenna.gr" version="1.2.4" name="ANT1 Player" provider-name="Twilight0">
-	<requires>
-		<import addon="xbmc.python" version="2.24.0" />
-		<import addon="script.module.tulip" version="1.4.0" />
-		<import addon="script.module.parsedom" version="0.9.1"/>
-	</requires>
-	<extension point="xbmc.python.pluginsource" library="addon.py">
-		<provides>video</provides>
-	</extension>
-	<extension point="xbmc.addon.metadata">
-		<summary lang="en_GB">ANT1 Player addon for Kodi</summary>
-		<description lang="en_GB">ANT1 live and on-demand broadcasts</description>
-		<description lang="el_GR">Ζωντανές και on demand υπηρεσίες του ANT1</description>
-		<disclaimer lang="en_GB">This addon offers content available in Greece and is not published nor endorsed by antenna.gr</disclaimer>
-		<disclaimer lang="el_GR">Το πρόσθετο αυτό προσφέρει περιεχόμενο διαθέσιμο στην Ελλάδα και δεν έχει δημοσιευθεί ούτε εγκριθεί από το antenna.gr</disclaimer>
+<addon id="plugin.video.antenna.gr" version="1.3.0~beta1" name="ANT1 Player" provider-name="Twilight0">
+    <requires>
+        <import addon="xbmc.python" version="2.24.0" />
+        <import addon="script.module.tulip" version="2.0.22" />
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="addon.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">ANT1 Player addon for Kodi</summary>
+        <description lang="en_GB">ANT1 live and on-demand broadcasts</description>
+        <description lang="el_GR">Ζωντανές και on demand υπηρεσίες του ANT1</description>
+        <disclaimer lang="en_GB">This addon offers content available in Greece and is not published nor endorsed by antenna.gr</disclaimer>
+        <disclaimer lang="el_GR">Το πρόσθετο αυτό προσφέρει περιεχόμενο διαθέσιμο στην Ελλάδα και δεν έχει δημοσιευθεί ούτε εγκριθεί από το antenna.gr</disclaimer>
         <language>en el</language>
-		<license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
-		<source>https://github.com/Twilight0/plugin.video.antenna.gr</source>
-		<website>http://www.antenna.gr/</website>
+        <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+        <source>https://github.com/Twilight0/plugin.video.antenna.gr</source>
+        <website>http://www.antenna.gr/</website>
         <size>692701</size>
-		<news>
-[B]1.2.4[/B]
+        <news>
+[B]1.3.0[/B]
 - Fixed parsing of TV Shows, Latest, Archive and Recommended episodes
-		</news>
-		<assets>
-			<icon>icon.png</icon>
-			<fanart>fanart.jpg</fanart>
-			<screenshot>resources/screenshots/screenshot-01.jpg</screenshot>
-			<screenshot>resources/screenshots/screenshot-02.jpg</screenshot>
-			<screenshot>resources/screenshots/screenshot-03.jpg</screenshot>
-		</assets>
-		<platform>all</platform>
-		<language>en el</language>
-		<!--<forum></forum>-->
-		<!--<email></email>-->
-	</extension>
+- Updated liveresolver
+- Removed screenshots to save space
+        </news>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+            <!--<screenshot>resources/screenshots/screenshot-01.jpg</screenshot>-->
+            <!--<screenshot>resources/screenshots/screenshot-02.jpg</screenshot>-->
+            <!--<screenshot>resources/screenshots/screenshot-03.jpg</screenshot>-->
+        </assets>
+        <platform>all</platform>
+        <language>en el</language>
+        <!--<forum></forum>-->
+        <!--<email></email>-->
+    </extension>
 </addon>

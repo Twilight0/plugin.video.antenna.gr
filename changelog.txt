@@ -1,3 +1,8 @@
+[B]1.3.0[/B]
+- Fixed parsing of TV Shows, Latest, Archive and Recommended episodes
+- Updated liveresolver
+- Removed screenshots to save space
+
 [B]1.2.3[/B]
 - Added new fallback urls for live
 

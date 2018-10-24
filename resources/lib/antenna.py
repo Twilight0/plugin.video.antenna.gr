@@ -17,9 +17,7 @@
 
 import json, re
 from tulip import bookmarks, directory, client, cache, workers, control
-import CommonFunctions
-common = CommonFunctions
-common.plugin = "ANT1 Player-1.2.3"
+from tulip.compat import range
 
 
 class indexer:
@@ -37,8 +35,8 @@ class indexer:
         self.weather_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show=ffff8dbf-8600-4f4a-9eb8-a617012eebab'
         self.get_live = self.base_link.replace('www', 'mservices') + '/services/mobile/getLiveStream.ashx?'
         self.more_videos = self.base_link + '/templates/data/morevideos?aid='
-        self.live_link_1 = 'https://glmxantennatvsec-lh.akamaihd.net/i/live_1@536771/master.m3u8'
-        self.live_link_2 = 'https://glmxantennatvsec-lh.akamaihd.net/i/live_2@536771/master.m3u8'
+        self.live_link_1 = 'https://antennalivesp-lh.akamaihd.net/i/live_1@715138/master.m3u8'
+        self.live_link_2 = 'https://antennalivesp-lh.akamaihd.net/i/live_2@715138/master.m3u8'
         self.live_page = self.base_link + '/Live'
 
     def root(self):
@@ -188,29 +186,29 @@ class indexer:
         try:
             if "contentContainer_totalpages" in result:
                 totalPages = int(re.search(r'contentContainer_totalpages = (\d+);', result).group(1))
-                seriesId =  re.search(r'\/templates\/data\/morevideos\?aid=(\d+)', result).group(1)
+                seriesId = re.search(r'/templates/data/morevideos\?aid=(\d+)', result).group(1)
                 items = []
                 threads = []
-                for i in range(1, totalPages+1):
+                for i in list(range(1, totalPages + 1)):
                     threads.append(workers.Thread(self.thread, self.more_videos + seriesId + "&p=" + str(i), i - 1))
                     self.data.append('')
                 [i.start() for i in threads]
                 [i.join() for i in threads]
 
                 for i in self.data:
-                    items.extend(common.parseDOM(i, "article"))
+                    items.extend(client.parseDOM(i, "article"))
             else:
-                items = common.parseDOM(result, "article")
+                items = client.parseDOM(result, "article")
         except:
             pass
 
         for item in items:
             try:
-                title = common.parseDOM(item, "h2")[0]
+                title = client.parseDOM(item, "h2")[0]
                 title = client.replaceHTMLCodes(title)
                 title = title.encode('utf-8')
 
-                link = common.parseDOM(item, "a", ret = "href")[0]
+                link = client.parseDOM(item, "a", ret = "href")[0]
 
                 if re.match(r'/.+/(\d+)/.+', link) is not None:
                     episodeId = re.search(r'/.+/(\d+)/.+', link).group(1)
@@ -222,7 +220,7 @@ class indexer:
                 else:
                     url = self.base_link + link + '/videos'
 
-                image = common.parseDOM(item, "img", ret = "src")[0]
+                image = client.parseDOM(item, "img", ret = "src")[0]
                 image = client.replaceHTMLCodes(image)
                 image = image.encode('utf-8')
 
@@ -273,7 +271,7 @@ class indexer:
         else:
             try:
                 html = client.request(url)
-                param = re.findall('\$.getJSON\(\'(.+?)\', \{ (.+?) \}', html)[0]
+                param = re.findall('\$.getJSON\(\'(.+?)\', { (.+?) \}', html)[0]
                 get_json = self.base_link + param[0] + '?' + param[1].replace(': ', '=').replace('\'', '')
 
                 result = client.request(get_json)
