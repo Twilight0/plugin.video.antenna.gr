@@ -16,73 +16,86 @@
 '''
 
 import json, re
-from tulip import bookmarks, directory, client, cache, workers, control
-from tulip.compat import range
+from youtube_resolver import resolve as yt_resolver
+from tulip import bookmarks, directory, client, cache, workers, control, youtube
+from tulip.compat import range, iteritems
 
 
-class indexer:
+class Indexer:
 
     def __init__(self):
 
         self.list = [] ; self.data = []
         self.base_link = 'https://www.antenna.gr'
-        self.tvshows_link = self.base_link + '/shows'
-        self.episodes_link = self.base_link + '/templates/data/player?cid='
-        self.archive_link = self.base_link + '/directory'
-        self.popular_link = self.base_link + '/templates/data/popular'
-        self.recommended_link = self.base_link + '/templates/data/HomeRecommended'
-        self.news_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show=eaa3d856-9d11-4c3f-a048-a617011cee3d'
-        self.weather_link = self.base_link.replace('www', 'mservices') + '/services/mobile/getepisodesforshow.ashx?show=ffff8dbf-8600-4f4a-9eb8-a617012eebab'
-        self.get_live = self.base_link.replace('www', 'mservices') + '/services/mobile/getLiveStream.ashx?'
-        self.more_videos = self.base_link + '/templates/data/morevideos?aid='
-        self.live_link_1 = 'https://antennalivesp-lh.akamaihd.net/i/live_1@715138/master.m3u8'
-        self.live_link_2 = 'https://antennalivesp-lh.akamaihd.net/i/live_2@715138/master.m3u8'
-        self.live_page = self.base_link + '/Live'
+        self.shows_link = ''.join([self.base_link, '/shows/ALL'])
+        self.archive_link = ''.join([self.base_link, '/directory/ALL'])
+        self.news_link = ''.join([self.base_link, '/ant1news/videos'])
+        self.weather_link = ''.join([self.base_link, '/webtv/3091/kairos?showall'])
+        self.sports_link = ''.join([self.base_link, '/webtv/3062/athlitika?showall'])
+        self.latest_link = ''.join([self.base_link, '/webtv/'])
+        self.more_videos = ''.join([self.base_link, '/templates/data/morevideos?aid='])
+        self.player_link = ''.join([self.base_link, '/templates/data/player?cid={0}'])
+        self.live_link = 'https://antennalivesp-lh.akamaihd.net/i/live_1@715138/master.m3u8'
+        self.yt_id = 'UC0smvAbfczoN75dP0Hw4Pzw'
+        self.yt_key = 'AIzaSyBOS4uSyd27OU0XV2KSdN3vT2UG_v0g9sI'
 
     def root(self):
 
         self.list = [
             {
                 'title': control.lang(32001),
-                'action': 'live',
+                'action': 'play',
                 'isFolder': 'False',
-                'icon': 'live.png'
+                'icon': 'live.png',
+                'url': self.live_link
             }
             ,
             {
                 'title': control.lang(32002),
-                'action': 'tvshows',
-                'icon': 'tvshows.png'
+                'action': 'shows',
+                'icon': 'shows.png',
+                'url': self.shows_link
             }
             ,
             {
                 'title': control.lang(32003),
-                'action': 'archive',
-                'icon': 'archive.png'
-            }
-            ,
-            {
-                'title': control.lang(32004),
-                'action': 'popular',
-                'icon': 'popular.png'
-            }
-            ,
-            {
-                'title': control.lang(32005),
-                'action': 'recommended',
-                'icon': 'recommended.png'
+                'action': 'shows',
+                'icon': 'archive.png',
+                'url': self.archive_link
             }
             ,
             {
                 'title': control.lang(32006),
-                'action': 'news',
-                'icon': 'news.png'
+                'action': 'episodes',
+                'icon': 'news.png',
+                'url': self.news_link
             }
             ,
             {
                 'title': control.lang(32007),
-                'action': 'weather',
-                'icon': 'weather.png'
+                'action': 'episodes',
+                'icon': 'weather.png',
+                'url': self.weather_link
+            }
+            ,
+            {
+                'title': control.lang(32010),
+                'action': 'episodes',
+                'icon': 'sports.png',
+                'url': self.sports_link
+            }
+            ,
+            {
+                'title': control.lang(32004),
+                'action': 'episodes',
+                'icon': 'popular.png',
+                'url': self.latest_link
+            }
+            ,
+            {
+                'title': control.lang(32005),
+                'action': 'youtube_channel',
+                'icon': 'youtube.png'
             }
             ,
             {
@@ -91,6 +104,11 @@ class indexer:
                 'icon': 'bookmarks.png'
             }
         ]
+
+        for item in self.list:
+
+            cache_clear = {'title': 32011, 'query': {'action': 'cache_clear'}}
+            item.update({'cm': [cache_clear]})
 
         directory.add(self.list, content='videos')
 
@@ -102,196 +120,179 @@ class indexer:
             return
 
         for i in self.list:
-            bookmark = dict((k, v) for k, v in i.iteritems() if not k == 'next')
+            bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
             bookmark['delbookmark'] = i['url']
             i.update({'cm': [{'title': 32502, 'query': {'action': 'deleteBookmark', 'url': json.dumps(bookmark)}}]})
 
         self.list = sorted(self.list, key=lambda k: k['title'].lower())
-        self.list = [i for i in self.list if 'url' in i and self.episodes_link in i['url']]
 
         directory.add(self.list, content='videos')
 
-    def tvshows(self):
+    def youtube_channel(self):
 
-        self.list = cache.get(self.items_list, 24, self.tvshows_link)
+        self.list = [
+            {
+                'title': 32013,
+                'action': 'episodes',
+                'icon': 'youtube.png',
+                'url': self.yt_id
+
+            }
+            ,
+            {
+                'title': 32012,
+                'action': 'playlists',
+                'icon': 'youtube.png'
+            }
+        ]
+
+        directory.add(self.list)
+
+    def playlists(self):
+
+        self.list = cache.get(youtube.youtube(key=self.yt_key).playlists, 1, self.yt_id)
 
         if self.list is None:
             return
-
-        for i in self.list: i.update({'action': 'episodes'})
 
         for i in self.list:
-            bookmark = dict((k, v) for k, v in i.iteritems() if not k == 'next')
-            bookmark['bookmark'] = i['url']
-            i.update({'cm': [{'title': 32501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
-
-        self.list = sorted(self.list, key=lambda k: k['title'].lower())
+            i.update({'action': 'episodes'})
 
         directory.add(self.list, content='videos')
-
-    def archive(self):
-
-        self.list = cache.get(self.items_list, 24, self.archive_link)
-
-        if self.list is None:
-            return
-
-        for i in self.list: i.update({'action': 'reverseEpisodes'})
-
-        for i in self.list:
-            bookmark = dict((k, v) for k, v in i.iteritems() if not k == 'next')
-            bookmark['bookmark'] = i['url']
-            i.update({'cm': [{'title': 32501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
-
-        self.list = sorted(self.list, key=lambda k: k['title'].lower())
-
-        directory.add(self.list, content='videos')
-
-    def episodes(self, url, reverse=False):
-        self.list = cache.get(self.items_list, 1, url)
-
-        if self.list is None:
-            return
-
-        for i in self.list: i.update({'action': 'play', 'isFolder': 'False'})
-
-        if reverse is True:
-            self.list = self.list[::-1]
-
-        directory.add(self.list, content='videos')
-
-    def popular(self):
-        self.episodes(self.popular_link)
-
-    def recommended(self):
-        self.episodes(self.recommended_link)
-
-    def news(self):
-        self.episodes(self.news_link)
-
-    def weather(self):
-        self.episodes(self.weather_link)
-
-    def play(self, url):
-        directory.resolve(self.resolve(url))
-
-    def live(self):
-        directory.resolve(self.resolve_live(), meta={'title': 'ANT1'})
 
     def items_list(self, url):
-        page = url
 
-        result = client.request(page)
+        html = client.request(url)
+
+        items = client.parseDOM(html, 'article', attrs={'class': 'item overlay grid__col-xs-6 grid__col-lg-4'})
+
+        for item in items:
+
+            title = client.parseDOM(item, 'h2')[0]
+            image = client.parseDOM(item, 'img', ret='src')[0]
+            url = client.parseDOM(item, 'a', attrs={'rel': 'bookmark'}, ret='href')[0]
+            url = ''.join([self.base_link, url, '/videos'])
+            plot = client.parseDOM(item, 'p', attrs={'class': 'excerpt visible__md'})[0]
+
+            self.list.append({'title': title, 'image': image, 'url': url, 'plot': plot})
+
+        return self.list
+
+    def shows(self, url):
+
+        self.list = cache.get(self.items_list, 24, url)
+
+        if self.list is None:
+            return
+
+        for i in self.list:
+            i.update({'action': 'episodes'})
+            bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
+            bookmark['bookmark'] = i['url']
+            i.update({'cm': [{'title': 32501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
+
+        self.list = sorted(self.list, key=lambda k: k['title'].lower())
+
+        directory.add(self.list, content='videos')
+
+    def episode_list(self, url):
+
+        html = client.request(url)
 
         try:
-            if "contentContainer_totalpages" in result:
-                totalPages = int(re.search(r'contentContainer_totalpages = (\d+);', result).group(1))
-                seriesId = re.search(r'/templates/data/morevideos\?aid=(\d+)', result).group(1)
+            if "contentContainer_totalpages" in html:
+                totalPages = int(re.search(r'contentContainer_totalpages = (\d+);', html).group(1))
+                seriesId = re.search(r'/templates/data/morevideos\?aid=(\d+)', html).group(1)
                 items = []
                 threads = []
                 for i in list(range(1, totalPages + 1)):
-                    threads.append(workers.Thread(self.thread, self.more_videos + seriesId + "&p=" + str(i), i - 1))
+                    threads.append(workers.Thread(self.thread, ''.join([self.more_videos, seriesId, "&p=", str(i)]), i - 1))
+                    control.sleep(100)
                     self.data.append('')
                 [i.start() for i in threads]
                 [i.join() for i in threads]
 
                 for i in self.data:
-                    items.extend(client.parseDOM(i, "article"))
+                    items.extend(client.parseDOM(i, 'article', attrs={'class': 'item overlay grid__col-xs-6.*?'}))
             else:
-                items = client.parseDOM(result, "article")
-        except:
-            pass
+                items = client.parseDOM(html, 'article', attrs={'class': 'item overlay grid__col-xs-6.*?'})
+        except Exception:
+            items = client.parseDOM(html, 'article', attrs={'class': 'item overlay grid__col-xs-6.*?'})
 
         for item in items:
-            try:
-                title = client.parseDOM(item, "h2")[0]
-                title = client.replaceHTMLCodes(title)
-                title = title.encode('utf-8')
 
-                link = client.parseDOM(item, "a", ret = "href")[0]
+            title = client.parseDOM(item, 'h2')[0]
+            image = client.parseDOM(item, 'img', ret='src')[0]
+            url = client.parseDOM(item, 'a', attrs={'rel': 'bookmark'}, ret='href')[0]
+            url = ''.join([self.base_link, url, '/videos'])
+            plot = client.parseDOM(item, 'p', attrs={'class': 'excerpt visible__md.+?'})[0]
 
-                if re.match(r'/.+/(\d+)/.+', link) is not None:
-                    episodeId = re.search(r'/.+/(\d+)/.+', link).group(1)
-                    episodeJSON = client.request(self.episodes_link + episodeId)
-                    episodeJSON = json.loads(episodeJSON)
-                    url = episodeJSON['url']
-                    url = client.replaceHTMLCodes(url)
-                    url = url.encode('utf-8')
-                else:
-                    url = self.base_link + link + '/videos'
-
-                image = client.parseDOM(item, "img", ret = "src")[0]
-                image = client.replaceHTMLCodes(image)
-                image = image.encode('utf-8')
-
-                self.list.append({'title': title, 'url': url, 'image': image})
-            except:
-                pass
+            self.list.append({'title': title, 'image': image, 'url': url, 'plot': plot})
 
         return self.list
 
-    def resolve_live(self):
+    def episodes(self, url):
 
-        if control.setting('page_resolver') == 'true' and 'Greece' in self.geo_loc():
-
-            html = client.request(self.live_page)
-
-            param = re.findall('\$.getJSON\(\'(.+?)\?', html)[0]
-            get_json = self.base_link + param
-            cookie = client.request(get_json, output='cookie', close=False, referer=self.live_page)
-            result = client.request(get_json, cookie=cookie, referer=self.live_page)
-            url = json.loads(result)['url']
-
-            return url
-
+        if url == self.yt_id:
+            self.list = cache.get(youtube.youtube(key=self.yt_key).videos, 1, url, False, 5)
+        elif url.startswith('http'):
+            self.list = cache.get(self.episode_list, 24, url)
         else:
+            self.list = cache.get(youtube.youtube(key=self.yt_key).playlist, 1, url, False, 5)
 
-            try:
+        if self.list is None:
+            return
 
-                json_obj = client.request(self.get_live)
+        for i in self.list:
+            i.update({'action': 'play', 'isFolder': 'False'})
 
-                url = json.loads(json_obj.strip('();'))['data']['stream']
+        directory.add(self.list, content='videos')
 
-                if url.endswith('.mp4'):
-                    raise StandardError
-                else:
-                    return url
+    def play(self, url):
 
-            except (KeyError, ValueError, StandardError, TypeError):
+        stream = self.resolve(url)
 
-                if client.request(self.live_link_1, output='response')[0] == '200':
-                    return self.live_link_1
-                else:
-                    return self.live_link_2
+        directory.resolve(stream)
 
     def resolve(self, url):
 
-        if 'm3u8' in url:
+        if url == self.live_link:
+
             return url
+
+        elif len(url) == 11:
+
+            return self.yt_session(url)
+
         else:
-            try:
-                html = client.request(url)
-                param = re.findall('\$.getJSON\(\'(.+?)\', { (.+?) \}', html)[0]
-                get_json = self.base_link + param[0] + '?' + param[1].replace(': ', '=').replace('\'', '')
 
-                result = client.request(get_json)
-                link = json.loads(result)['url']
+            id = re.search(r'watch/(\d+)/', url).group(1)
+            json_ = json.loads(client.request(self.player_link.format(id)))
+            media_url = json_['url']
 
-                return link
-            except:
-                pass
+            return media_url
+
+    @staticmethod
+    def yt_session(yt_id):
+
+        streams = yt_resolver(yt_id)
+
+        try:
+            addon_enabled = control.addon_details('inputstream.adaptive').get('enabled')
+        except KeyError:
+            addon_enabled = False
+
+        if not addon_enabled:
+            streams = [s for s in streams if 'mpd' not in s['title']]
+
+        stream = streams[0]['url']
+
+        return stream
 
     def thread(self, url, i):
 
         try:
             result = client.request(url, mobile=True)
             self.data[i] = result
-        except:
+        except Exception:
             return
-
-    @staticmethod
-    def geo_loc():
-
-        json_obj = client.request('http://ip-api.com/json')
-
-        return json_obj

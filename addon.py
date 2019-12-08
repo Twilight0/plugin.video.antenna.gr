@@ -21,32 +21,17 @@ from resources.lib import antenna, action, url
 if action is None:
     antenna.indexer().root()
 
-elif action == 'tvshows':
-    antenna.indexer().tvshows()
-
-elif action == 'archive':
-    antenna.indexer().archive()
+elif action == 'shows':
+    antenna.indexer().shows(url)
 
 elif action == 'episodes':
     antenna.indexer().episodes(url)
 
-elif action == 'reverseEpisodes':
-    antenna.indexer().episodes(url, reverse=True)
+elif action == 'youtube_channel':
+    antenna.indexer().youtube_channel()
 
-elif action == 'popular':
-    antenna.indexer().popular()
-
-elif action == 'recommended':
-    antenna.indexer().recommended()
-
-elif action == 'news':
-    antenna.indexer().news()
-
-elif action == 'weather':
-    antenna.indexer().weather()
-
-elif action == 'live':
-    antenna.indexer().live()
+elif action == 'playlists':
+    antenna.indexer().playlists()
 
 elif action == 'play':
     antenna.indexer().play(url)

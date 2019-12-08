@@ -28,7 +28,7 @@ msgid "Latest"
 msgstr ""
 
 msgctxt "#32005"
-msgid "Recommended"
+msgid "Youtube Channel"
 msgstr ""
 
 msgctxt "#32006"
@@ -48,11 +48,19 @@ msgid "General"
 msgstr ""
 
 msgctxt "#32010"
-msgid "Use web page resolver for live stream"
+msgid "Sports"
 msgstr ""
 
 msgctxt "#32011"
 msgid "Clear Function cache"
+msgstr ""
+
+msgctxt "#32012"
+msgid "Playlists"
+msgstr ""
+
+msgctxt "#32013"
+msgid "Latest videos"
 msgstr ""
 
 msgctxt "#32500"

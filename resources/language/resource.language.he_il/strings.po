@@ -38,8 +38,8 @@ msgid "Latest"
 msgstr "אחרון"
 
 msgctxt "#32005"
-msgid "Recommended"
-msgstr "מומלץ"
+msgid "Youtube Channel"
+msgstr "ערוץ יוטיוב"
 
 msgctxt "#32006"
 msgid "News"
@@ -58,12 +58,20 @@ msgid "General"
 msgstr "בדרך כלל"
 
 msgctxt "#32010"
-msgid "Use web page resolver for live stream"
-msgstr "הפוך את אתר האינטרנט פותר שימוש עבור הזרמה חייה"
+msgid "Sports"
+msgstr "שֶׁל ספּוֹרט"
 
 msgctxt "#32011"
 msgid "Clear Function cache"
 msgstr "פונקציות זיכרון נקה"
+
+msgctxt "#32012"
+msgid "Playlists"
+msgstr "פלייליסטים"
+
+msgctxt "#32013"
+msgid "Latest videos"
+msgstr "סרטונים אחרונים"
 
 msgctxt "#32500"
 msgid "Next..."

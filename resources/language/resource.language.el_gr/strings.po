@@ -28,8 +28,8 @@ msgid "Latest"
 msgstr "Πρόσφατα"
 
 msgctxt "#32005"
-msgid "Recommended"
-msgstr "Προτεινόμενα"
+msgid "Youtube Channel"
+msgstr "Κανάλι Youtube"
 
 msgctxt "#32006"
 msgid "News"
@@ -48,12 +48,20 @@ msgid "General"
 msgstr "Γενικά"
 
 msgctxt "#32010"
-msgid "Use web page resolver for live stream"
-msgstr "Κάνε χρήση επιλυτή ιστοσελίδας για την ζωντανή ροή"
+msgid "Sports"
+msgstr "Αθλητικά"
 
 msgctxt "#32011"
 msgid "Clear Function cache"
 msgstr "Καθαρισμός μνήμης λειτουργιών"
+
+msgctxt "#32012"
+msgid "Playlists"
+msgstr "Λίστες αναπαραγωγής"
+
+msgctxt "#32013"
+msgid "Latest videos"
+msgstr "Τελευταία βίντεο"
 
 msgctxt "#32500"
 msgid "Next..."
