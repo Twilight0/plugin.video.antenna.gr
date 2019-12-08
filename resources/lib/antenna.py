@@ -32,6 +32,7 @@ class Indexer:
         self.news_link = ''.join([self.base_link, '/ant1news/videos'])
         self.weather_link = ''.join([self.base_link, '/webtv/3091/kairos?showall'])
         self.sports_link = ''.join([self.base_link, '/webtv/3062/athlitika?showall'])
+        self.life_link = ''.join([self.base_link, '/webtv/5271/life?showall'])
         self.latest_link = ''.join([self.base_link, '/webtv/'])
         self.more_videos = ''.join([self.base_link, '/templates/data/morevideos?aid='])
         self.player_link = ''.join([self.base_link, '/templates/data/player?cid={0}'])
@@ -52,42 +53,49 @@ class Indexer:
             ,
             {
                 'title': control.lang(32002),
-                'action': 'shows',
+                'action': 'listing',
                 'icon': 'shows.png',
                 'url': self.shows_link
             }
             ,
             {
                 'title': control.lang(32003),
-                'action': 'shows',
+                'action': 'listing',
                 'icon': 'archive.png',
                 'url': self.archive_link
             }
             ,
             {
                 'title': control.lang(32006),
-                'action': 'episodes',
+                'action': 'videos',
                 'icon': 'news.png',
                 'url': self.news_link
             }
             ,
             {
                 'title': control.lang(32007),
-                'action': 'episodes',
+                'action': 'videos',
                 'icon': 'weather.png',
                 'url': self.weather_link
             }
             ,
             {
                 'title': control.lang(32010),
-                'action': 'episodes',
+                'action': 'videos',
                 'icon': 'sports.png',
                 'url': self.sports_link
             }
             ,
             {
+                'title': control.lang(32014),
+                'action': 'videos',
+                'icon': 'lifestyle.png',
+                'url': self.life_link
+            }
+            ,
+            {
                 'title': control.lang(32004),
-                'action': 'episodes',
+                'action': 'videos',
                 'icon': 'popular.png',
                 'url': self.latest_link
             }
@@ -120,6 +128,7 @@ class Indexer:
             return
 
         for i in self.list:
+
             bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
             bookmark['delbookmark'] = i['url']
             i.update({'cm': [{'title': 32502, 'query': {'action': 'deleteBookmark', 'url': json.dumps(bookmark)}}]})
@@ -133,7 +142,7 @@ class Indexer:
         self.list = [
             {
                 'title': 32013,
-                'action': 'episodes',
+                'action': 'videos',
                 'icon': 'youtube.png',
                 'url': self.yt_id
 
@@ -150,13 +159,17 @@ class Indexer:
 
     def playlists(self):
 
-        self.list = cache.get(youtube.youtube(key=self.yt_key).playlists, 1, self.yt_id)
+        self.list = cache.get(youtube.youtube(key=self.yt_key).playlists, 12, self.yt_id)
 
         if self.list is None:
             return
 
         for i in self.list:
-            i.update({'action': 'episodes'})
+
+            i.update({'action': 'videos'})
+            bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
+            bookmark['bookmark'] = i['url']
+            i.update({'cm': [{'title': 32501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
 
         directory.add(self.list, content='videos')
 
@@ -178,7 +191,7 @@ class Indexer:
 
         return self.list
 
-    def shows(self, url):
+    def listing(self, url):
 
         self.list = cache.get(self.items_list, 24, url)
 
@@ -186,18 +199,23 @@ class Indexer:
             return
 
         for i in self.list:
-            i.update({'action': 'episodes'})
+
+            i.update({'action': 'videos'})
             bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
             bookmark['bookmark'] = i['url']
             i.update({'cm': [{'title': 32501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
 
-        self.list = sorted(self.list, key=lambda k: k['title'].lower())
-
         directory.add(self.list, content='videos')
 
-    def episode_list(self, url):
+    def video_list(self, url):
 
         html = client.request(url)
+
+        if 'webtv' in url:
+            attribute = 'library-add-container.+?'
+        else:
+            attribute = 'item overlay grid__.+?'
+        tag = 'article'
 
         try:
             if "contentContainer_totalpages" in html:
@@ -207,38 +225,44 @@ class Indexer:
                 threads = []
                 for i in list(range(1, totalPages + 1)):
                     threads.append(workers.Thread(self.thread, ''.join([self.more_videos, seriesId, "&p=", str(i)]), i - 1))
-                    control.sleep(100)
+                    control.sleep(200)
                     self.data.append('')
                 [i.start() for i in threads]
                 [i.join() for i in threads]
 
                 for i in self.data:
-                    items.extend(client.parseDOM(i, 'article', attrs={'class': 'item overlay grid__col-xs-6.*?'}))
+                    items.extend(client.parseDOM(i, tag, attrs={'class': attribute}))
             else:
-                items = client.parseDOM(html, 'article', attrs={'class': 'item overlay grid__col-xs-6.*?'})
+                items = client.parseDOM(html, tag, attrs={'class': attribute})
         except Exception:
-            items = client.parseDOM(html, 'article', attrs={'class': 'item overlay grid__col-xs-6.*?'})
+            items = client.parseDOM(html, tag, attrs={'class': attribute})
 
         for item in items:
 
             title = client.parseDOM(item, 'h2')[0]
             image = client.parseDOM(item, 'img', ret='src')[0]
-            url = client.parseDOM(item, 'a', attrs={'rel': 'bookmark'}, ret='href')[0]
-            url = ''.join([self.base_link, url, '/videos'])
-            plot = client.parseDOM(item, 'p', attrs={'class': 'excerpt visible__md.+?'})[0]
+            try:
+                url = client.parseDOM(item, 'a', attrs={'rel': 'bookmark'}, ret='href')[0]
+            except IndexError:
+                url = client.parseDOM(item, 'a', attrs={'class': 'has-video'}, ret='href')[0]
+            url = ''.join([self.base_link, url])
+            try:
+                plot = client.parseDOM(item, 'p', attrs={'class': 'excerpt visible__md.+?'})[0]
+            except IndexError:
+                plot = title
 
             self.list.append({'title': title, 'image': image, 'url': url, 'plot': plot})
 
         return self.list
 
-    def episodes(self, url):
+    def videos(self, url):
 
         if url == self.yt_id:
-            self.list = cache.get(youtube.youtube(key=self.yt_key).videos, 1, url, False, 5)
+            self.list = cache.get(youtube.youtube(key=self.yt_key, replace_url=False).videos, 1, url)
         elif url.startswith('http'):
-            self.list = cache.get(self.episode_list, 24, url)
+            self.list = cache.get(self.video_list, 24, url)
         else:
-            self.list = cache.get(youtube.youtube(key=self.yt_key).playlist, 1, url, False, 5)
+            self.list = cache.get(youtube.youtube(key=self.yt_key, replace_url=False).playlist, 3, url)
 
         if self.list is None:
             return
@@ -252,7 +276,7 @@ class Indexer:
 
         stream = self.resolve(url)
 
-        directory.resolve(stream)
+        directory.resolve(stream, dash=stream.endswith('.mpd'))
 
     def resolve(self, url):
 
@@ -260,7 +284,7 @@ class Indexer:
 
             return url
 
-        elif len(url) == 11:
+        elif 'youtube' in url or len(url) == 11:
 
             return self.yt_session(url)
 
@@ -283,7 +307,7 @@ class Indexer:
             addon_enabled = False
 
         if not addon_enabled:
-            streams = [s for s in streams if 'mpd' not in s['title']]
+            streams = [s for s in streams if 'mpd' not in s['title'].lower()]
 
         stream = streams[0]['url']
 

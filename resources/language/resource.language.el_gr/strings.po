@@ -63,6 +63,10 @@ msgctxt "#32013"
 msgid "Latest videos"
 msgstr "Τελευταία βίντεο"
 
+msgctxt "#32014"
+msgid "Lifestyle"
+msgstr "Lifestyle"
+
 msgctxt "#32500"
 msgid "Next..."
 msgstr "Επόμενα..."

@@ -19,22 +19,22 @@ from resources.lib import antenna, action, url
 
 
 if action is None:
-    antenna.indexer().root()
+    antenna.Indexer().root()
 
-elif action == 'shows':
-    antenna.indexer().shows(url)
+elif action == 'listing':
+    antenna.Indexer().listing(url)
 
-elif action == 'episodes':
-    antenna.indexer().episodes(url)
+elif action == 'videos':
+    antenna.Indexer().videos(url)
 
 elif action == 'youtube_channel':
-    antenna.indexer().youtube_channel()
+    antenna.Indexer().youtube_channel()
 
 elif action == 'playlists':
-    antenna.indexer().playlists()
+    antenna.Indexer().playlists()
 
 elif action == 'play':
-    antenna.indexer().play(url)
+    antenna.Indexer().play(url)
 
 elif action == 'addBookmark':
     from tulip import bookmarks
@@ -45,7 +45,7 @@ elif action == 'deleteBookmark':
     bookmarks.delete(url)
 
 elif action == 'bookmarks':
-    antenna.indexer().bookmarks()
+    antenna.Indexer().bookmarks()
 
 elif action == 'cache_clear':
     from tulip import cache

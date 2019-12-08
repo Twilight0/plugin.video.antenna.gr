@@ -73,6 +73,10 @@ msgctxt "#32013"
 msgid "Latest videos"
 msgstr "סרטונים אחרונים"
 
+msgctxt "#32014"
+msgid "Lifestyle"
+msgstr "סגנון חיים"
+
 msgctxt "#32500"
 msgid "Next..."
 msgstr "הבא..."
