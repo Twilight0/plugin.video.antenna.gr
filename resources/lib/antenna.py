@@ -218,7 +218,6 @@ class Indexer:
             attribute = 'item overlay grid__.+?'
         tag = 'article'
 
-        # try:
         if "contentContainer_totalpages" in html or ('totalpages' in html and 'webtv' in url):
             totalPages = re.findall(r'totalpages = (\d+);', html)
             if 'webtv' in url:
@@ -248,8 +247,6 @@ class Indexer:
                 items.extend(client.parseDOM(i, tag, attrs={'class': attribute}))
         else:
             items = client.parseDOM(html, tag, attrs={'class': attribute})
-        # except Exception:
-        #     items = client.parseDOM(html, tag, attrs={'class': attribute})
 
         for item in items:
 
@@ -284,6 +281,7 @@ class Indexer:
         for i in self.list:
             i.update({'action': 'play', 'isFolder': 'False'})
 
+        control.sortmethods()
         control.sortmethods('title')
 
         directory.add(self.list, content='videos')
