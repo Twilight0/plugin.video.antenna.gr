@@ -35,6 +35,7 @@ class Indexer:
         self.life_link = ''.join([self.base_link, '/webtv/5271/life?showall'])
         self.latest_link = ''.join([self.base_link, '/webtv/'])
         self.more_videos = ''.join([self.base_link, '/templates/data/morevideos?aid='])
+        self.more_web_videos = ''.join([self.base_link, '/templates/data/WEBTVvideosPerVideoCategory?cid='])
         self.player_link = ''.join([self.base_link, '/templates/data/player?cid={0}'])
         self.live_link = 'https://antennalivesp-lh.akamaihd.net/i/live_1@715138/master.m3u8'
         self.yt_id = 'UC0smvAbfczoN75dP0Hw4Pzw'
@@ -217,25 +218,38 @@ class Indexer:
             attribute = 'item overlay grid__.+?'
         tag = 'article'
 
-        try:
-            if "contentContainer_totalpages" in html:
-                totalPages = int(re.search(r'contentContainer_totalpages = (\d+);', html).group(1))
-                seriesId = re.search(r'/templates/data/morevideos\?aid=(\d+)', html).group(1)
-                items = []
-                threads = []
-                for i in list(range(1, totalPages + 1)):
-                    threads.append(workers.Thread(self.thread, ''.join([self.more_videos, seriesId, "&p=", str(i)]), i - 1))
-                    control.sleep(200)
-                    self.data.append('')
-                [i.start() for i in threads]
-                [i.join() for i in threads]
-
-                for i in self.data:
-                    items.extend(client.parseDOM(i, tag, attrs={'class': attribute}))
+        # try:
+        if "contentContainer_totalpages" in html or ('totalpages' in html and 'webtv' in url):
+            totalPages = re.findall(r'totalpages = (\d+);', html)
+            if 'webtv' in url:
+                totalPages = int(totalPages[1])
             else:
-                items = client.parseDOM(html, tag, attrs={'class': attribute})
-        except Exception:
+                totalPages = int(totalPages[0])
+            if 'webtv' in url:
+                pattern = r'var cid = (\d+);'
+            else:
+                pattern = r'/templates/data/morevideos\?aid=(\d+)'
+            seriesId = re.search(pattern, html).group(1)
+            items = []
+            threads = []
+            for i in list(range(1, totalPages + 1)):
+                if 'webtv' in url:
+                    threads.append(workers.Thread(self.thread, ''.join([self.more_web_videos, seriesId, "&p=", str(i), '&h=15']), i - 1))
+                else:
+                    threads.append(workers.Thread(self.thread, ''.join([self.more_videos, seriesId, "&p=", str(i), ]), i - 1))
+                control.sleep(200)
+                self.data.append('')
+            [i.start() for i in threads]
+            [i.join() for i in threads]
+
+            print self.data
+
+            for i in self.data:
+                items.extend(client.parseDOM(i, tag, attrs={'class': attribute}))
+        else:
             items = client.parseDOM(html, tag, attrs={'class': attribute})
+        # except Exception:
+        #     items = client.parseDOM(html, tag, attrs={'class': attribute})
 
         for item in items:
 
@@ -269,6 +283,8 @@ class Indexer:
 
         for i in self.list:
             i.update({'action': 'play', 'isFolder': 'False'})
+
+        control.sortmethods('title')
 
         directory.add(self.list, content='videos')
 
