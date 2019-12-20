@@ -1,3 +1,7 @@
+[B]2.0.3[/B]
+- Remove forgotten print statement
+- Replace control.sleep with native sleep of 50ms between requests
+
 [B]2.0.2[/B]
 - Added the "unsorted" method as default instead of title
 

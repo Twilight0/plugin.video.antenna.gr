@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from time import sleep
 import json, re
 from youtube_resolver import resolve as yt_resolver
 from tulip import bookmarks, directory, client, cache, workers, control, youtube
@@ -236,12 +237,9 @@ class Indexer:
                     threads.append(workers.Thread(self.thread, ''.join([self.more_web_videos, seriesId, "&p=", str(i), '&h=15']), i - 1))
                 else:
                     threads.append(workers.Thread(self.thread, ''.join([self.more_videos, seriesId, "&p=", str(i), ]), i - 1))
-                control.sleep(200)
                 self.data.append('')
             [i.start() for i in threads]
             [i.join() for i in threads]
-
-            print self.data
 
             for i in self.data:
                 items.extend(client.parseDOM(i, tag, attrs={'class': attribute}))
@@ -332,5 +330,6 @@ class Indexer:
         try:
             result = client.request(url, mobile=True)
             self.data[i] = result
+            sleep(0.05)
         except Exception:
             return
