@@ -1,3 +1,11 @@
+[B]2.1.0[/B]
+- Improved WebTV indexers
+- Increased timeout for requests
+- Add label for live stream
+- Added "more videos" item on web tv indexers
+- Added the web tv item nesting various video categories
+- Allow m3u8/hls dash on Leia+
+
 [B]2.0.3[/B]
 - Remove forgotten print statement
 - Replace control.sleep with native sleep of 50ms between requests

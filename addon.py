@@ -27,6 +27,9 @@ elif action == 'listing':
 elif action == 'videos':
     antenna.Indexer().videos(url)
 
+elif action == 'webtv':
+    antenna.Indexer().webtv()
+
 elif action == 'youtube_channel':
     antenna.Indexer().youtube_channel()
 

@@ -64,8 +64,72 @@ msgid "Latest videos"
 msgstr "Τελευταία βίντεο"
 
 msgctxt "#32014"
-msgid "Lifestyle"
-msgstr "Lifestyle"
+msgid "Life"
+msgstr "Life"
+
+msgctxt "#32015"
+msgid "More videos"
+msgstr "Περισσότερα βίντεο"
+
+msgctxt "#32016"
+msgid "Web TV"
+msgstr "Web TV"
+
+msgctxt "#32017"
+msgid "Politics"
+msgstr "Πολιτική"
+
+msgctxt "#32018"
+msgid "Recipes"
+msgstr "Συνταγές"
+
+msgctxt "#32019"
+msgid "Fashion"
+msgstr "Μόδα"
+
+msgctxt "#32020"
+msgid "Society"
+msgstr "Κοινωνία"
+
+msgctxt "#32021"
+msgid "Top subjects"
+msgstr "Κορυφαία θέματα"
+
+msgctxt "#32022"
+msgid "Gossip"
+msgstr "Κουτσομπολιό"
+
+msgctxt "#32023"
+msgid "Strange"
+msgstr "Παράξενα"
+
+msgctxt "#32024"
+msgid "World"
+msgstr "Κόσμος"
+
+msgctxt "#32025"
+msgid "Trailers"
+msgstr "Τρέιλερς"
+
+msgctxt "#32026"
+msgid "Interviews"
+msgstr "Συνεντεύξεις"
+
+msgctxt "#32027"
+msgid "Astrology"
+msgstr "Ζώδια"
+
+msgctxt "#32028"
+msgid "Newspapers"
+msgstr "Εφημερίδες"
+
+msgctxt "#32029"
+msgid "Beauty"
+msgstr "Ομορφιά"
+
+msgctxt "#32030"
+msgid "Guests"
+msgstr "Καλεσμένοι"
 
 msgctxt "#32500"
 msgid "Next..."

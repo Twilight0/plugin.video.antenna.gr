@@ -33,7 +33,6 @@ class Indexer:
         self.news_link = ''.join([self.base_link, '/ant1news/videos'])
         self.weather_link = ''.join([self.base_link, '/webtv/3091/kairos?showall'])
         self.sports_link = ''.join([self.base_link, '/webtv/3062/athlitika?showall'])
-        self.life_link = ''.join([self.base_link, '/webtv/5271/life?showall'])
         self.latest_link = ''.join([self.base_link, '/webtv/'])
         self.more_videos = ''.join([self.base_link, '/templates/data/morevideos?aid='])
         self.more_web_videos = ''.join([self.base_link, '/templates/data/WEBTVvideosPerVideoCategory?cid='])
@@ -89,17 +88,16 @@ class Indexer:
             }
             ,
             {
-                'title': control.lang(32014),
-                'action': 'videos',
-                'icon': 'lifestyle.png',
-                'url': self.life_link
-            }
-            ,
-            {
                 'title': control.lang(32004),
                 'action': 'videos',
                 'icon': 'popular.png',
                 'url': self.latest_link
+            }
+            ,
+            {
+                'title': control.lang(32016),
+                'action': 'webtv',
+                'icon': 'webtv.png'
             }
             ,
             {
@@ -217,44 +215,48 @@ class Indexer:
             attribute = 'library-add-container.+?'
         else:
             attribute = 'item overlay grid__.+?'
+
         tag = 'article'
 
-        if "contentContainer_totalpages" in html or ('totalpages' in html and 'webtv' in url):
-            totalPages = re.findall(r'totalpages = (\d+);', html)
-            if 'webtv' in url:
-                totalPages = int(totalPages[1])
-            else:
-                totalPages = int(totalPages[0])
+        items = client.parseDOM(html, tag, attrs={'class': attribute})
+
+        if "contentContainer_totalpages" in html or ('totalpages' in html and 'webtv' in url and not 'showall' in url):
+
+            totalPages = int(re.search(r'totalpages = (\d+);', html).group(1))
+
             if 'webtv' in url:
                 pattern = r'var cid = (\d+);'
             else:
                 pattern = r'/templates/data/morevideos\?aid=(\d+)'
+
             seriesId = re.search(pattern, html).group(1)
-            items = []
             threads = []
-            for i in list(range(1, totalPages + 1)):
+
+            for i in list(range(2, totalPages + 1)):
                 if 'webtv' in url:
                     threads.append(workers.Thread(self.thread, ''.join([self.more_web_videos, seriesId, "&p=", str(i), '&h=15']), i - 1))
                 else:
                     threads.append(workers.Thread(self.thread, ''.join([self.more_videos, seriesId, "&p=", str(i), ]), i - 1))
                 self.data.append('')
+
             [i.start() for i in threads]
             [i.join() for i in threads]
 
             for i in self.data:
                 items.extend(client.parseDOM(i, tag, attrs={'class': attribute}))
-        else:
-            items = client.parseDOM(html, tag, attrs={'class': attribute})
 
         for item in items:
 
             title = client.parseDOM(item, 'h2')[0]
             image = client.parseDOM(item, 'img', ret='src')[0]
+
             try:
                 url = client.parseDOM(item, 'a', attrs={'rel': 'bookmark'}, ret='href')[0]
             except IndexError:
                 url = client.parseDOM(item, 'a', attrs={'class': 'has-video'}, ret='href')[0]
+
             url = ''.join([self.base_link, url])
+
             try:
                 plot = client.parseDOM(item, 'p', attrs={'class': 'excerpt visible__md.+?'})[0]
             except IndexError:
@@ -282,13 +284,144 @@ class Indexer:
         control.sortmethods()
         control.sortmethods('title')
 
+        if 'webtv' in url and not 'showall' in url and url != self.latest_link:
+
+            more = {
+                'title': control.lang(32015),
+                'url': url + '?showall',
+                'action': 'videos',
+                'icon': 'next.png'
+            }
+
+            self.list.insert(-1, more)
+
         directory.add(self.list, content='videos')
+
+    def webtv(self):
+
+        self.list = [
+            {
+                'title': control.lang(32021), # top
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/4676/top-thema?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32017), # politics
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/3049/politiki?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32020), # society
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/3060/koinonia?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32024), # world
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/3060/koinonia?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32028), # newspapers
+                'action': 'videos',
+                'url': ''.join([self.base_link, 'webtv/4674/efimerides?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32023), # strange
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/5274/paraxena?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32025), # trailers
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/5104/ant1-trailers?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32014), # life
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/5271/life?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32026), # interviews
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/4348/synenteyxeis-kalesmenon?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32030),  # guests
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/4963/kalesmenoi?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32019), # fashion
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/4491/moda?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32029), # beauty
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/5089/beauty?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32022), # gossip
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/4492/gossip?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32018), # recipes
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/4349/syntages?showall'])
+            }
+            ,
+            {
+                'title': control.lang(32027), # astrology
+                'action': 'videos',
+                'url': ''.join([self.base_link, '/webtv/4350/zodia?showall'])
+            }
+        ]
+
+        directory.add(self.list)
 
     def play(self, url):
 
+        meta = None
+
         stream = self.resolve(url)
 
-        directory.resolve(stream, dash=stream.endswith('.mpd'))
+        if stream == self.live_link:
+
+            meta = {'title': 'Ant1 TV'}
+
+        try:
+            addon_enabled = control.addon_details('inputstream.adaptive').get('enabled')
+        except KeyError:
+            addon_enabled = False
+
+        if int(
+                control.infoLabel('System.AddonVersion("xbmc.python")').replace('.', '')
+        ) >= 2260 and 'm3u8' in stream and addon_enabled:
+
+            m3u8_dash = True
+
+        else:
+
+            m3u8_dash = False
+
+        directory.resolve(
+            stream, meta=meta, dash=stream.endswith('.mpd') or m3u8_dash,
+            manifest_type='hls' if m3u8_dash else None, mimetype='application/vnd.apple.mpegurl' if m3u8_dash else None
+        )
 
     def resolve(self, url):
 
@@ -328,7 +461,7 @@ class Indexer:
     def thread(self, url, i):
 
         try:
-            result = client.request(url, mobile=True)
+            result = client.request(url, timeout=20)
             self.data[i] = result
             sleep(0.05)
         except Exception:

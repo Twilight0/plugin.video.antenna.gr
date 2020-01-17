@@ -64,7 +64,71 @@ msgid "Latest videos"
 msgstr ""
 
 msgctxt "#32014"
-msgid "Lifestyle"
+msgid "Life"
+msgstr ""
+
+msgctxt "#32015"
+msgid "More videos"
+msgstr ""
+
+msgctxt "#32016"
+msgid "Web TV"
+msgstr ""
+
+msgctxt "#32017"
+msgid "Politics"
+msgstr ""
+
+msgctxt "#32018"
+msgid "Recipes"
+msgstr ""
+
+msgctxt "#32019"
+msgid "Fashion"
+msgstr ""
+
+msgctxt "#32020"
+msgid "Society"
+msgstr ""
+
+msgctxt "#32021"
+msgid "Top subjects"
+msgstr ""
+
+msgctxt "#32022"
+msgid "Gossip"
+msgstr ""
+
+msgctxt "#32023"
+msgid "Strange"
+msgstr ""
+
+msgctxt "#32024"
+msgid "World"
+msgstr ""
+
+msgctxt "#32025"
+msgid "Trailers"
+msgstr ""
+
+msgctxt "#32026"
+msgid "Interviews"
+msgstr ""
+
+msgctxt "#32027"
+msgid "Astrology"
+msgstr ""
+
+msgctxt "#32028"
+msgid "Newspapers"
+msgstr ""
+
+msgctxt "#32029"
+msgid "Beauty"
+msgstr ""
+
+msgctxt "#32030"
+msgid "Guests"
 msgstr ""
 
 msgctxt "#32500"
