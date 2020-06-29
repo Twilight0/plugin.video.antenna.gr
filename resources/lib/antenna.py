@@ -17,6 +17,7 @@
 
 from time import sleep
 import json, re
+from base64 import b64decode
 from youtube_resolver import resolve as yt_resolver
 from tulip import bookmarks, directory, client, cache, workers, control, youtube
 from tulip.compat import range, iteritems
@@ -39,7 +40,7 @@ class Indexer:
         self.player_link = ''.join([self.base_link, '/templates/data/player?cid={0}'])
         self.live_link = 'https://antennalivesp-lh.akamaihd.net/i/live_1@715138/master.m3u8'
         self.yt_id = 'UC0smvAbfczoN75dP0Hw4Pzw'
-        self.yt_key = 'AIzaSyBOS4uSyd27OU0XV2KSdN3vT2UG_v0g9sI'
+        self.yt_key = b64decode('nZzbjNEWFNVLz5kakF3VUBDWrlkQ1lEVQJUYyp3VL9FR5NVY6lUQ'[::-1])
 
     def root(self):
 
@@ -232,7 +233,7 @@ class Indexer:
             seriesId = re.search(pattern, html).group(1)
             threads = []
 
-            for i in list(range(2, totalPages + 1)):
+            for i in list(range(2, totalPages + 2)):
                 if 'webtv' in url:
                     threads.append(workers.Thread(self.thread, ''.join([self.more_web_videos, seriesId, "&p=", str(i), '&h=15']), i - 1))
                 else:

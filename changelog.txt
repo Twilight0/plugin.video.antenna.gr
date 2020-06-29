@@ -1,3 +1,7 @@
+[B]2.1.1[/B]
+- Updated youtube api key
+- Minor bug fix in the main indexing function
+
 [B]2.1.0[/B]
 - Improved WebTV indexers
 - Increased timeout for requests
