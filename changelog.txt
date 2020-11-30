@@ -1,3 +1,8 @@
+[B]2.2.0[/B]
+- Updated youtube api key
+- Added pagination function for long lists
+- A few other tweaks here and there
+
 [B]2.1.1[/B]
 - Updated youtube api key
 - Minor bug fix in the main indexing function

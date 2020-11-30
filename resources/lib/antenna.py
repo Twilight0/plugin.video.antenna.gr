@@ -1,25 +1,18 @@
 # -*- coding: utf-8 -*-
 
 '''
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    Ant1 Player Addon
+    Author Twilight0
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    SPDX-License-Identifier: GPL-3.0-only
+    See LICENSES/GPL-3.0-only for more information.
 '''
 
 from time import sleep
 import json, re
 from base64 import b64decode
 from youtube_resolver import resolve as yt_resolver
-from tulip import bookmarks, directory, client, cache, workers, control, youtube
+from tulip import bookmarks, directory, client, cache, workers, control, youtube, utils
 from tulip.compat import range, iteritems
 
 
@@ -40,13 +33,13 @@ class Indexer:
         self.player_link = ''.join([self.base_link, '/templates/data/player?cid={0}'])
         self.live_link = 'https://antennalivesp-lh.akamaihd.net/i/live_1@715138/master.m3u8'
         self.yt_id = 'UC0smvAbfczoN75dP0Hw4Pzw'
-        self.yt_key = b64decode('nZzbjNEWFNVLz5kakF3VUBDWrlkQ1lEVQJUYyp3VL9FR5NVY6lUQ'[::-1])
+        self.yt_key = b64decode('VpGUslWWNVzZtgmd4kDWx8UWmFFSvV1T6p0cWNESkhGR5NVY6lUQ'[::-1])
 
     def root(self):
 
         self.list = [
             {
-                'title': control.lang(32001),
+                'title': control.lang(30001),
                 'action': 'play',
                 'isFolder': 'False',
                 'icon': 'live.png',
@@ -54,61 +47,61 @@ class Indexer:
             }
             ,
             {
-                'title': control.lang(32002),
+                'title': control.lang(30002),
                 'action': 'listing',
                 'icon': 'shows.png',
                 'url': self.shows_link
             }
             ,
             {
-                'title': control.lang(32003),
+                'title': control.lang(30003),
                 'action': 'listing',
                 'icon': 'archive.png',
                 'url': self.archive_link
             }
             ,
             {
-                'title': control.lang(32006),
+                'title': control.lang(30006),
                 'action': 'videos',
                 'icon': 'news.png',
                 'url': self.news_link
             }
             ,
             {
-                'title': control.lang(32007),
+                'title': control.lang(30007),
                 'action': 'videos',
                 'icon': 'weather.png',
                 'url': self.weather_link
             }
             ,
             {
-                'title': control.lang(32010),
+                'title': control.lang(30010),
                 'action': 'videos',
                 'icon': 'sports.png',
                 'url': self.sports_link
             }
             ,
             {
-                'title': control.lang(32004),
+                'title': control.lang(30004),
                 'action': 'videos',
                 'icon': 'popular.png',
                 'url': self.latest_link
             }
             ,
             {
-                'title': control.lang(32016),
+                'title': control.lang(30016),
                 'action': 'webtv',
                 'icon': 'webtv.png'
             }
             ,
             {
-                'title': control.lang(32005),
+                'title': control.lang(30005),
                 'action': 'youtube_channel',
                 'icon': 'youtube.png'
             }
             ,
             {
-                'title': control.lang(32008),
+                'title': control.lang(30008),
                 'action': 'bookmarks',
                 'icon': 'bookmarks.png'
             }
@@ -116,7 +109,7 @@ class Indexer:
 
         for item in self.list:
 
-            cache_clear = {'title': 32011, 'query': {'action': 'cache_clear'}}
+            cache_clear = {'title': 30011, 'query': {'action': 'cache_clear'}}
             item.update({'cm': [cache_clear]})
 
         directory.add(self.list, content='videos')
@@ -132,7 +125,7 @@ class Indexer:
 
             bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
             bookmark['delbookmark'] = i['url']
-            i.update({'cm': [{'title': 32502, 'query': {'action': 'deleteBookmark', 'url': json.dumps(bookmark)}}]})
+            i.update({'cm': [{'title': 30502, 'query': {'action': 'deleteBookmark', 'url': json.dumps(bookmark)}}]})
 
         self.list = sorted(self.list, key=lambda k: k['title'].lower())
 
@@ -142,7 +135,7 @@ class Indexer:
 
         self.list = [
             {
-                'title': 32013,
+                'title': 30013,
                 'action': 'videos',
                 'icon': 'youtube.png',
                 'url': self.yt_id
@@ -150,7 +143,7 @@ class Indexer:
             }
             ,
             {
-                'title': 32012,
+                'title': 30012,
                 'action': 'playlists',
                 'icon': 'youtube.png'
             }
@@ -170,7 +163,7 @@ class Indexer:
             i.update({'action': 'videos'})
             bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
             bookmark['bookmark'] = i['url']
-            i.update({'cm': [{'title': 32501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
+            i.update({'cm': [{'title': 30501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
 
         directory.add(self.list, content='videos')
 
@@ -204,7 +197,7 @@ class Indexer:
             i.update({'action': 'videos'})
             bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
             bookmark['bookmark'] = i['url']
-            i.update({'cm': [{'title': 32501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
+            i.update({'cm': [{'title': 30501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
 
         directory.add(self.list, content='videos')
 
@@ -288,7 +281,7 @@ class Indexer:
         if 'webtv' in url and not 'showall' in url and url != self.latest_link:
 
             more = {
-                'title': control.lang(32015),
+                'title': control.lang(30015),
                 'url': url + '?showall',
                 'action': 'videos',
                 'icon': 'next.png'
@@ -296,97 +289,113 @@ class Indexer:
 
             self.list.insert(-1, more)
 
+        elif len(self.list) > int(control.setting('pagination_integer')) and control.setting('paginate') == 'true':
+
+            try:
+
+                pages = utils.list_divider(self.list, int(control.setting('pagination_integer')))
+                self.list = pages[int(control.setting('page'))]
+                reset = False
+
+            except Exception:
+
+                pages = utils.list_divider(self.list, int(control.setting('pagination_integer')))
+                self.list = pages[0]
+                reset = True
+
+            self.list.insert(0, self.page_menu(len(pages), reset=reset))
+
         directory.add(self.list, content='videos')
 
     def webtv(self):
 
         self.list = [
             {
-                'title': control.lang(32021), # top
+                'title': control.lang(30021), # top
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/4676/top-thema?showall'])
             }
             ,
             {
-                'title': control.lang(32017), # politics
+                'title': control.lang(30017), # politics
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/3049/politiki?showall'])
             }
             ,
             {
-                'title': control.lang(32020), # society
+                'title': control.lang(30020), # society
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/3060/koinonia?showall'])
             }
             ,
             {
-                'title': control.lang(32024), # world
+                'title': control.lang(30024), # world
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/3060/koinonia?showall'])
             }
             ,
             {
-                'title': control.lang(32028), # newspapers
+                'title': control.lang(30028), # newspapers
                 'action': 'videos',
                 'url': ''.join([self.base_link, 'webtv/4674/efimerides?showall'])
             }
             ,
             {
-                'title': control.lang(32023), # strange
+                'title': control.lang(30023), # strange
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/5274/paraxena?showall'])
             }
             ,
             {
-                'title': control.lang(32025), # trailers
+                'title': control.lang(30025), # trailers
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/5104/ant1-trailers?showall'])
             }
             ,
             {
-                'title': control.lang(32014), # life
+                'title': control.lang(30014), # life
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/5271/life?showall'])
             }
             ,
             {
-                'title': control.lang(32026), # interviews
+                'title': control.lang(30026), # interviews
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/4348/synenteyxeis-kalesmenon?showall'])
             }
             ,
             {
-                'title': control.lang(32030),  # guests
+                'title': control.lang(30030),  # guests
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/4963/kalesmenoi?showall'])
             }
             ,
             {
-                'title': control.lang(32019), # fashion
+                'title': control.lang(30019), # fashion
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/4491/moda?showall'])
             }
             ,
             {
-                'title': control.lang(32029), # beauty
+                'title': control.lang(30029), # beauty
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/5089/beauty?showall'])
             }
             ,
             {
-                'title': control.lang(32022), # gossip
+                'title': control.lang(30022), # gossip
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/4492/gossip?showall'])
             }
             ,
             {
-                'title': control.lang(32018), # recipes
+                'title': control.lang(30018), # recipes
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/4349/syntages?showall'])
             }
             ,
             {
-                'title': control.lang(32027), # astrology
+                'title': control.lang(30027), # astrology
                 'action': 'videos',
                 'url': ''.join([self.base_link, '/webtv/4350/zodia?showall'])
             }
@@ -458,6 +467,37 @@ class Indexer:
         stream = streams[0]['url']
 
         return stream
+
+    @staticmethod
+    def page_menu(pages, reset=False):
+
+        if not reset:
+            index = str(int(control.setting('page')) + 1)
+        else:
+            index = '1'
+
+        menu = {
+            'title': control.lang(30033).format(index),
+            'action': 'switch',
+            'query': str(pages),
+            'icon': 'selector.png',
+            'isFolder': 'False',
+            'isPlayable': 'False'
+        }
+
+        return menu
+
+    @staticmethod
+    def switch(query):
+
+        pages = [control.lang(30034).format(i) for i in list(range(1, int(query) + 1))]
+
+        choice = control.selectDialog(pages, heading=control.lang(30035))
+
+        if choice != -1:
+            control.setSetting('page', str(choice))
+            control.sleep(200)
+            control.refresh()
 
     def thread(self, url, i):
 
