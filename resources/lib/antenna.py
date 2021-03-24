@@ -8,12 +8,14 @@
     See LICENSES/GPL-3.0-only for more information.
 '''
 
-from time import sleep
 import json, re
 from base64 import b64decode
 from youtube_resolver import resolve as yt_resolver
-from tulip import bookmarks, directory, client, cache, workers, control, youtube, utils
+from tulip import bookmarks, directory, client, cache, control, youtube, utils
 from tulip.compat import range, iteritems
+import concurrent.futures
+
+method_cache = cache.FunctionCache().cache_method
 
 
 class Indexer:
@@ -153,7 +155,7 @@ class Indexer:
 
     def playlists(self):
 
-        self.list = cache.get(youtube.youtube(key=self.yt_key).playlists, 12, self.yt_id)
+        self.list = self.yt_playlists()
 
         if self.list is None:
             return
@@ -167,6 +169,7 @@ class Indexer:
 
         directory.add(self.list, content='videos')
 
+    @method_cache(1440)
     def items_list(self, url):
 
         html = client.request(url)
@@ -187,7 +190,7 @@ class Indexer:
 
     def listing(self, url):
 
-        self.list = cache.get(self.items_list, 24, url)
+        self.list = self.items_list(url)
 
         if self.list is None:
             return
@@ -201,6 +204,7 @@ class Indexer:
 
         directory.add(self.list, content='videos')
 
+    @method_cache(1440)
     def video_list(self, url):
 
         html = client.request(url)
@@ -226,15 +230,19 @@ class Indexer:
             seriesId = re.search(pattern, html).group(1)
             threads = []
 
-            for i in list(range(2, totalPages + 2)):
-                if 'webtv' in url:
-                    threads.append(workers.Thread(self.thread, ''.join([self.more_web_videos, seriesId, "&p=", str(i), '&h=15']), i - 1))
-                else:
-                    threads.append(workers.Thread(self.thread, ''.join([self.more_videos, seriesId, "&p=", str(i), ]), i - 1))
-                self.data.append('')
+            with concurrent.futures.ThreadPoolExecutor(10) as executor:
 
-            [i.start() for i in threads]
-            [i.join() for i in threads]
+                for i in list(range(2, totalPages + 2)):
+                    if 'webtv' in url:
+                        thread_url = ''.join([self.more_web_videos, seriesId, "&p=", str(i), '&h=15'])
+                    else:
+                        thread_url = ''.join([self.more_videos, seriesId, "&p=", str(i)])
+                    threads.append(executor.submit(self.thread, thread_url))
+                for future in concurrent.futures.as_completed(threads):
+                    item = future.result()
+                    if not item:
+                        continue
+                    self.data.append(item)
 
             for i in self.data:
                 items.extend(client.parseDOM(i, tag, attrs={'class': attribute}))
@@ -263,11 +271,11 @@ class Indexer:
     def videos(self, url):
 
         if url == self.yt_id:
-            self.list = cache.get(youtube.youtube(key=self.yt_key, replace_url=False).videos, 1, url)
+            self.list = self.yt_videos(url)
         elif url.startswith('http'):
-            self.list = cache.get(self.video_list, 24, url)
+            self.list = self.video_list(url)
         else:
-            self.list = cache.get(youtube.youtube(key=self.yt_key, replace_url=False).playlist, 3, url)
+            self.list = self.yt_playlist()
 
         if self.list is None:
             return
@@ -499,11 +507,22 @@ class Indexer:
             control.sleep(200)
             control.refresh()
 
-    def thread(self, url, i):
+    def thread(self, url):
 
-        try:
-            result = client.request(url, timeout=20)
-            self.data[i] = result
-            sleep(0.05)
-        except Exception:
-            return
+        result = client.request(url, timeout=10)
+        return result
+
+    @method_cache(60)
+    def yt_playlist(self, url):
+
+        return youtube.youtube(key=self.yt_key, replace_url=False).playlist(url)
+
+    @method_cache(60)
+    def yt_videos(self, url):
+
+        return youtube.youtube(key=self.yt_key, replace_url=False).videos(url)
+
+    @method_cache(360)
+    def yt_playlists(self):
+
+        return youtube.youtube(key=self.yt_key).playlists(self.yt_id)
