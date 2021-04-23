@@ -4,7 +4,7 @@
     <category label="32006">
 
         <setting label="30011" type="action" action="RunPlugin(plugin://$ID/?action=cache_clear)" option="close"/>
-        <setting id="paginate" type="bool" label="30031" default="true"/>
+        <setting id="paginate" type="bool" label="30031" default="false"/>
         <setting id="pagination_integer" type="slider" label="30032" default="100" range="50,50,300" option="int" enable="eq(-1,true)"/>
         <setting id="page" type="text" label="Pagination" default="0" visible="false"/>
 

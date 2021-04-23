@@ -1,3 +1,7 @@
+[B]2.3.1[/B]
+- Replace futures with tulip's own method
+- Pagination now disabled by default
+
 [B]2.2.0[/B]
 - Updated youtube api key
 - Added pagination function for long lists

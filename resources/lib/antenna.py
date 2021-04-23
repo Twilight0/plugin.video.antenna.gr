@@ -12,8 +12,7 @@ import json, re
 from base64 import b64decode
 from youtube_resolver import resolve as yt_resolver
 from tulip import bookmarks, directory, client, cache, control, youtube, utils
-from tulip.compat import range, iteritems
-import concurrent.futures
+from tulip.compat import range, iteritems, concurrent_futures
 
 method_cache = cache.FunctionCache().cache_method
 
@@ -230,7 +229,7 @@ class Indexer:
             seriesId = re.search(pattern, html).group(1)
             threads = []
 
-            with concurrent.futures.ThreadPoolExecutor(10) as executor:
+            with concurrent_futures.ThreadPoolExecutor(10) as executor:
 
                 for i in list(range(2, totalPages + 2)):
                     if 'webtv' in url:
@@ -238,7 +237,7 @@ class Indexer:
                     else:
                         thread_url = ''.join([self.more_videos, seriesId, "&p=", str(i)])
                     threads.append(executor.submit(self.thread, thread_url))
-                for future in concurrent.futures.as_completed(threads):
+                for future in concurrent_futures.as_completed(threads):
                     item = future.result()
                     if not item:
                         continue
