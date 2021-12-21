@@ -3,7 +3,7 @@
 
     <category label="30016">
 
-        <setting label="30011" type="action" action="RunPlugin(plugin://$ID/?action=cache_clear)" option="close"/>
+        <setting label="30011" type="action" action="RunPlugin(plugin://$ID/?action=clear_cache)" option="close"/>
 
     </category>
 

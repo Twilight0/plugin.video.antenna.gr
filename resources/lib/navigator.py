@@ -105,7 +105,10 @@ def video_list(url):
     for item in items:
 
         title = client.parseDOM(item, 'h3')[0]
-        image = client.parseDOM(item, 'img', ret='src')[0]
+        try:
+            image = client.parseDOM(item, 'img', ret='src')[0]
+        except IndexError:
+            image = control.icon()
         url = client.parseDOM(item, 'a', ret='href')[0]
         url = ''.join([VIDEOS_BASE, url])
         self_list.append({'title': title, 'url': url, 'image': image, 'next': next_url})
